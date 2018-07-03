@@ -1,6 +1,8 @@
 extern crate base64;
 extern crate encoding;
 extern crate ini;
+#[macro_use]
+extern crate lazy_static;
 extern crate reqwest;
 #[macro_use]
 extern crate serde_derive;
@@ -9,6 +11,7 @@ extern crate treexml;
 mod config;
 mod file_writer;
 mod request;
+mod creek_files;
 
 fn main() {
     let config = config::Config::new();
