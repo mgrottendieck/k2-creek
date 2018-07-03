@@ -1,12 +1,12 @@
+use creek_files::handle_files_on_users_command;
 use encoding::{self, EncoderTrap, EncodingRef};
 use encoding::label::encoding_from_whatwg_label;
 
 use request::K2Response;
-use creek_files::FILENAMES;
+use creek_files::*;
 use creek_files::CreekFileType::*;
 use std::fs::File;
 use std::io::Write;
-use std::str;
 use treexml::Document;
 
 macro_rules! unwrap_or_null {
@@ -50,6 +50,7 @@ fn write_string_to_file(string: &str, dest: &str) {
 
     let mut file = File::create(dest).expect("Unable to create file");
     file.write_all(&encoded[..]).expect("Unable to write data");
+    println!("Wrote file {:?}", dest);
 }
 
 #[allow(non_snake_case)]
@@ -89,8 +90,15 @@ fn create_mfefgdo_xml_string(iccsn: &Option<String>) -> String {
     )
 }
 
+fn handle_leftovers() {
+    if FILENAMES.values().any(|file| check_exists(file)) {
+        handle_files_on_users_command();
+    }
+}
+
 #[allow(non_snake_case)]
 pub fn dump_egk_data_to_files(resp: &K2Response) {
+    handle_leftovers();
     if let Some(ref ged) = resp.eGKData {
         write_file_if_some!(filename_by_type!(EgkAllgemein), ged.vd);
         write_file_if_some!(filename_by_type!(EgkGeschuetzt), ged.gvd);

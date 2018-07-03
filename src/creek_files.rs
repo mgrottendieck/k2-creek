@@ -1,4 +1,11 @@
+extern crate promptly;
+
+use std::fs;
 use std::collections::HashMap;
+use std::path::Path;
+use self::promptly::Promptable;
+
+use ::CONFIG;
 
 #[derive(PartialEq, Eq, Hash)]
 pub enum CreekFileType {
@@ -24,4 +31,22 @@ lazy_static! {
         map.insert(CreekFileType::KvkDaten, "KVK_Daten.bin");
         map
     };
+}
+
+pub fn check_exists(path: &str) -> bool {
+    Path::new(&format!("./{}", path)).exists()
+}
+
+pub fn handle_files_on_users_command() {
+    let delete = CONFIG.is_force_delete() || bool::prompt_default("WARNING - Old files found in output folder. Delete before proceeding?", false);
+    if delete {
+        FILENAMES.values().for_each(|file| {
+            if check_exists(file) {
+                fs::remove_file(file).expect(&format!("Unable to delete {}. Aborting...", file));
+                println!("Deleted old {}", file);
+            }
+        });
+    } else {
+        println!("Continuing with file generation. You will probably end up with an inconsistent set of result files.");
+    }
 }
